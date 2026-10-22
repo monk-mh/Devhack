@@ -27,7 +27,7 @@ app.add_middleware(
 
 class EvaluateRequest(BaseModel):
     text: str = Field(..., description="Raw input text to evaluate and enforce")
-    role: Optional[str] = Field("Intern", description="Viewer role: Intern, Manager, or HR")
+    role: Optional[str] = Field("Manager", description="Viewer role: Manager or HR")
 
 class AuditItem(BaseModel):
     detected_text: str

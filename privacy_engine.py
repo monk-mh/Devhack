@@ -17,7 +17,7 @@ from typing import Dict, Any, List
 # ROLES & CLEARANCE POLICY MATRIX (PPT SLIDE 3 & 4)
 # ──────────────────────────────────────────────────────────────────────────────
 
-ROLES = ["Intern", "Manager", "HR"]
+ROLES = ["Manager", "HR"]
 
 CATEGORIES = [
     "CREDENTIALS",
@@ -32,37 +32,30 @@ CATEGORIES = [
 # Clearance Matrix: Category -> { Role -> Action (ALLOW, REDACT, BLOCK) }
 CLEARANCE_RULES = {
     "CREDENTIALS": {
-        "Intern": "BLOCK",
         "Manager": "BLOCK",
         "HR": "BLOCK"
     },
     "HEALTH_MEDICAL": {
-        "Intern": "REDACT",
         "Manager": "REDACT",
         "HR": "REDACT"
     },
     "FINANCIAL_PERSONAL": {
-        "Intern": "REDACT",
         "Manager": "REDACT",
         "HR": "ALLOW"
     },
     "FINANCIAL_POLICY": {
-        "Intern": "ALLOW",
         "Manager": "ALLOW",
         "HR": "ALLOW"
     },
     "NATIONAL_ID": {
-        "Intern": "REDACT",
         "Manager": "REDACT",
         "HR": "ALLOW"
     },
     "PII_CONTACT": {
-        "Intern": "REDACT",
         "Manager": "ALLOW",
         "HR": "ALLOW"
     },
     "BUSINESS_PUBLIC": {
-        "Intern": "ALLOW",
         "Manager": "ALLOW",
         "HR": "ALLOW"
     }
@@ -78,7 +71,6 @@ ROLE_POLICY_MATRIX = {
         "6. Personal Contact (Phone/Email)",
         "7. Public Business Directory"
     ],
-    "Intern Clearance": ["⛔ BLOCK", "🔒 REDACT", "🔒 REDACT", "✅ ALLOW", "🔒 REDACT", "🔒 REDACT", "✅ ALLOW"],
     "Manager Clearance": ["⛔ BLOCK", "🔒 REDACT", "🔒 REDACT", "✅ ALLOW", "🔒 REDACT", "✅ ALLOW", "✅ ALLOW"],
     "HR Clearance": ["⛔ BLOCK", "🔒 REDACT", "✅ ALLOW", "✅ ALLOW", "✅ ALLOW", "✅ ALLOW", "✅ ALLOW"]
 }
@@ -205,7 +197,7 @@ def detect_contextual_findings(text: str) -> List[Dict[str, Any]]:
 # POLICY ENGINE & FIREWALL ENFORCEMENT (PPT SLIDE 3, 5 & 6)
 # ──────────────────────────────────────────────────────────────────────────────
 
-def evaluate_and_enforce(text: str, role: str = "Intern") -> Dict[str, Any]:
+def evaluate_and_enforce(text: str, role: str = "Manager") -> Dict[str, Any]:
     """
     Evaluates text against viewer role clearance and applies:
       - ALLOW: Passes through untouched
@@ -221,7 +213,7 @@ def evaluate_and_enforce(text: str, role: str = "Intern") -> Dict[str, Any]:
             "stats": {"total_findings": 0, "allowed": 0, "redacted": 0, "blocked": 0}
         }
 
-    role = role if role in ROLES else "Intern"
+    role = role if role in ROLES else "Manager"
     findings = detect_contextual_findings(text)
 
     audit_log = []
@@ -285,7 +277,7 @@ def evaluate_and_enforce(text: str, role: str = "Intern") -> Dict[str, Any]:
 
 # Backwards compatibility wrappers
 def scan_and_sanitize(text: str) -> Dict[str, Any]:
-    res = evaluate_and_enforce(text, role="Intern")
+    res = evaluate_and_enforce(text, role="Manager")
     return {
         "original_text": res["original_text"],
         "sanitized_text": res["sanitized_text"],

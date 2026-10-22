@@ -20,7 +20,7 @@ from privacy_engine import evaluate_and_enforce, ROLES, CATEGORIES, ROLE_POLICY_
 # ──────────────────────────────────────────────────────────────────────────────
 
 st.set_page_config(
-    page_title="ContextGuard | Team Error404 (DEVHOST 2026)",
+    page_title="ContextGuard",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -39,17 +39,6 @@ html, body, [class*="css"] {
     font-weight: 800;
     color: #f8fafc;
     margin-bottom: 0px;
-}
-
-.team-badge {
-    background: #1e1b4b;
-    border: 1px solid #4338ca;
-    color: #a5b4fc;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 0.85rem;
-    display: inline-block;
 }
 
 .text-box {
@@ -107,7 +96,7 @@ PPT_PRESETS = {
     },
     "2. Personal Salary (PPT Slide 3 Contrast)": {
         "text": "Rahul earns 11 LPA as a Senior Software Engineer.",
-        "desc": "Individual salary disclosure -> REDACTED for Intern/Manager, ALLOWED for HR."
+        "desc": "Individual salary disclosure -> REDACTED for Manager, ALLOWED for HR."
     },
     "3. Private Health (PPT Slide 2 False Negative)": {
         "text": "Priya won’t be in till March — her chemo cycle starts Monday.",
@@ -119,7 +108,7 @@ PPT_PRESETS = {
     },
     "5. Indian National IDs (Aadhaar & PAN)": {
         "text": "New contractor details: Aadhaar 4920 1829 3847, PAN ABCDE1234F, email rahul@acme.com.",
-        "desc": "Aadhaar & PAN -> REDACTED for Intern, ALLOWED for HR."
+        "desc": "Aadhaar & PAN -> REDACTED for Manager, ALLOWED for HR."
     }
 }
 
@@ -130,30 +119,17 @@ PPT_PRESETS = {
 if "input_text" not in st.session_state:
     st.session_state.input_text = PPT_PRESETS["1. Salary Band (PPT Slide 2 False Positive)"]["text"]
 if "selected_role" not in st.session_state:
-    st.session_state.selected_role = "Intern"
+    st.session_state.selected_role = "Manager"
 if "llm_output" not in st.session_state:
     st.session_state.llm_output = None
 
 # ──────────────────────────────────────────────────────────────────────────────
-# HEADER (MATCHING PPT SLIDE 1 & SLIDE 3)
+# HEADER
 # ──────────────────────────────────────────────────────────────────────────────
 
-c_head1, c_head2 = st.columns([3, 1])
-with c_head1:
-    st.markdown('<div class="main-title">🛡️ ContextGuard</div>', unsafe_allow_html=True)
-    st.markdown("**Context-Aware Data Privacy Firewall for AI** | Problem Statement 2.2")
-with c_head2:
-    st.markdown(
-        """
-        <div style="text-align: right; padding-top: 10px;">
-            <span class="team-badge">Team: Error404</span><br/>
-            <span style="font-size: 0.75rem; color: #94a3b8;">St Joseph Engineering College</span>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-st.caption("ContextGuard sits between business data and AI. It analyzes text in context, enforces role-based clearance (Intern, Manager, HR), and redacts or blocks unauthorized exposure.")
+st.markdown('<div class="main-title">🛡️ ContextGuard</div>', unsafe_allow_html=True)
+st.markdown("**Context-Aware Data Privacy Firewall for AI**")
+st.caption("ContextGuard sits between business data and AI. It analyzes text in context, enforces role-based clearance (Manager, HR), and redacts or blocks unauthorized exposure.")
 
 # ──────────────────────────────────────────────────────────────────────────────
 # SIDEBAR: ROLE SELECTOR & BENCHMARK PRESETS (PPT SLIDE 3)
@@ -161,7 +137,7 @@ st.caption("ContextGuard sits between business data and AI. It analyzes text in 
 
 with st.sidebar:
     st.header("👤 Viewer Role")
-    role_options = ["Intern", "Manager", "HR"]
+    role_options = ["Manager", "HR"]
     selected_role = st.selectbox(
         "Who is asking for the information?",
         options=role_options,
@@ -169,9 +145,7 @@ with st.sidebar:
     )
     st.session_state.selected_role = selected_role
 
-    if selected_role == "Intern":
-        st.info("🔒 **Intern View:** Cleared for public & general policy only. Personal PII, salaries, IDs, and medical data are redacted.")
-    elif selected_role == "Manager":
+    if selected_role == "Manager":
         st.warning("📋 **Manager View:** Cleared for team PII & business projects. Personal salaries and medical details remain redacted.")
     else:
         st.success("🏢 **HR View:** Cleared for PII, Aadhaar/PAN, employee compensation, and medical records. Secrets remain blocked.")
