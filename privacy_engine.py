@@ -15,6 +15,10 @@ from presidio_analyzer import AnalyzerEngine
 from presidio_analyzer.nlp_engine import NlpEngineProvider
 
 # 1. Initialize Presidio Analyzer singleton with en_core_web_sm
+import spacy
+if not spacy.util.is_package("en_core_web_sm"):
+    spacy.cli.download("en_core_web_sm")
+
 nlp_config = {
     "nlp_engine_name": "spacy",
     "models": [{"lang_code": "en", "model_name": "en_core_web_sm"}]
