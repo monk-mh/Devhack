@@ -1,152 +1,81 @@
-# 🛡️ PrivacyShield AI — Context-Aware Data Privacy Guard
+# 🛡️ ContextGuard — Privacy Firewall for AI
 > **Problem Statement: DEVHOST 2026 — PS 2.2**  
-> Dynamic Semantic Risk Evaluation & Policy Enforcement (PASS, MASK, PSEUDONYMIZE, REDACT)
+> **Team Name:** `Error404` | **Institution:** `St Joseph Engineering College, Vamanjoor Mangalore`  
+> **Team Members:** Nikhil A Poojary, Kavya D Marla, Manvith Bangera, Sudharshan  
 
 ---
 
-## 📌 Problem & Context
-Standard privacy filters and regex patterns suffer from two major flaws:
-1. **Over-redaction (False Positives)**: Redacting emails or names from public sales/support inquiries breaks customer support channels.
-2. **False Negatives & Privacy Leaks**: Missing sensitive healthcare or financial details when tokens change context.
+## 📌 Executive Summary
+**ContextGuard** is a context-aware data privacy firewall that sits between business data and AI systems. It evaluates information in context, enforces role-based clearance (**Intern · Manager · HR**), and dynamically **Allows**, **Redacts**, or **Blocks** unauthorized exposure.
 
-**PrivacyShield AI** analyzes candidate entities (PII, Financial, Medical, Contact) within a **70-character sliding semantic context window** and dynamically assigns one of four policies:
-
-| Policy | Context Trigger Cues | Risk Tier | Action Description | Example |
-| :--- | :--- | :---: | :--- | :--- |
-| 🟢 **PASS** | `PUBLIC_BUSINESS` (*sales, support, inquiries, contact*) | **LOW** | Allows data through untouched without over-redaction | `alice@acme.com` |
-| 🟡 **MASK** | `GENERAL_PII` (*unattributed phone, personal contact*) | **MEDIUM** | Partial obfuscation preserving structure & utility | `98450****5` |
-| 🔵 **PSEUDONYMIZE** | `HEALTH_CONFIDENTIAL` (*diagnosed, leukemia, treatment, medical*) | **HIGH** | Reversible surrogate token stored in protected mapping | `[PERSON_REF_101]` |
-| 🔴 **REDACT** | `FINANCIAL_INTERNAL` (*salary, bonus, appraisal, account*) | **HIGH** | Complete irreversible removal | `[REDACTED_FINANCIAL]` |
+> *"The same information needs different protection depending on who is asking."*
 
 ---
 
-## 🚀 Quickstart (Run in 2 Commands)
+## ⚡ The Core Problem & Context-Aware Solution
 
-### 1. Install Dependencies
+| Traditional Keyword Filter *(Flawed)* | ContextGuard Firewall *(Our Solution)* |
+| :--- | :--- |
+| **False Positive:** Blocks general policy information like *"The salary band for this role is 8–12 LPA"* because it sees words like "salary". | **Context Analysis (Layer 2):** Identifies organizational pay range / policy data and **`ALLOWS`** it for all roles with zero over-redaction. |
+| **False Negative:** Allows private medical text like *"Priya won’t be in till March — her chemo cycle starts Monday"* because there is no keyword trigger. | **Semantic Context:** Recognizes chemotherapy treatment disclosures and **`REDACTS`** to protect health privacy. |
+| **Blanket Treatment:** Treats an intern the same as an HR manager. | **Least Privilege by Design:** Personal salary disclosures (e.g. *"Rahul earns 11 LPA"*) are **`REDACTED`** for Interns & Managers, but **`ALLOWED`** for HR personnel. |
+| **Secrets Exposure:** Leaks connection strings into LLM training context. | **Hard Stop Security:** Critical infrastructure credentials (e.g. `postgresql://...`) **`BLOCK`** the entire transmission immediately. |
+
+---
+
+## 📊 Role-Based Clearance Matrix (7 Categories × 3 Roles)
+
+| Sensitivity Category | Description | 🔒 Intern View | 📋 Manager View | 🏢 HR View |
+| :--- | :--- | :---: | :---: | :---: |
+| **1. Credentials & Secrets** | Database URIs, passwords, API tokens | ⛔ **BLOCK** | ⛔ **BLOCK** | ⛔ **BLOCK** |
+| **2. Private Health & Chemo** | Medical conditions, cancer, chemotherapy | 🔒 **REDACT** | 🔒 **REDACT** | 🔒 **REDACT** |
+| **3. Personal Compensation** | Individual employee salaries & bonuses | 🔒 **REDACT** | 🔒 **REDACT** | ✅ **ALLOW** |
+| **4. General Salary Band** | Organizational pay scale & hiring budget | ✅ **ALLOW** | ✅ **ALLOW** | ✅ **ALLOW** |
+| **5. Indian National IDs** | Indian Aadhaar (12-digit) & PAN | 🔒 **REDACT** | 🔒 **REDACT** | ✅ **ALLOW** |
+| **6. Contact Information** | Personal phone numbers & personal emails | 🔒 **REDACT** | ✅ **ALLOW** | ✅ **ALLOW** |
+| **7. Public Business Directory** | Support desks, sales emails, press contacts | ✅ **ALLOW** | ✅ **ALLOW** | ✅ **ALLOW** |
+
+---
+
+## 🧪 5 Presentation Benchmark Scenarios (PPT Slides 2 & 3)
+
+1. **Preset 1 (Salary Band - Slide 2 False Positive):**  
+   `"The salary band for this role is 8–12 LPA."`  
+   ➜ **Result:** **`ALLOW`** for all roles (Zero false-positive over-redaction).
+
+2. **Preset 2 (Personal Salary - Slide 3 Contrast):**  
+   `"Rahul earns 11 LPA as a Senior Software Engineer."`  
+   ➜ **Result:** **`REDACTED`** for Intern/Manager (`[REDACTED:SALARY]`), **`ALLOW`** for HR.
+
+3. **Preset 3 (Private Health - Slide 2 False Negative):**  
+   `"Priya won’t be in till March — her chemo cycle starts Monday."`  
+   ➜ **Result:** **`REDACTED`** (`[REDACTED:HEALTH]`) protecting confidential medical data.
+
+4. **Preset 4 (Database Credentials - Slide 3 Secrets):**  
+   `"Deployment config: postgresql://admin:P@ssw0rdProd@db.internal:5432/finance"`  
+   ➜ **Result:** ⛔ **`TRANSMISSION BLOCKED`** for all roles before reaching the AI.
+
+5. **Preset 5 (Indian National IDs - Aadhaar & PAN):**  
+   `"New contractor details: Aadhaar 4920 1829 3847, PAN ABCDE1234F, email rahul@acme.com."`  
+   ➜ **Result:** **`REDACTED`** for Intern, **`ALLOW`** for HR onboarding.
+
+---
+
+## 🚀 Quickstart & Running Locally
+
+### 1. Run the Streamlit Interactive Dashboard
 ```bash
-pip install -r requirements.txt
-python -m spacy download en_core_web_sm
+py -m streamlit run dashboard.py
 ```
+*Live at: `http://localhost:8501`*
 
-### 2. Start Backend & Dashboard
-
-**Command 1 (FastAPI Server):**
+### 2. Run the FastAPI Backend Server (Optional)
 ```bash
-python -m uvicorn server:app --host 127.0.0.1 --port 8000 --reload
+py -m uvicorn server:app --host 127.0.0.1 --port 8000 --reload
 ```
-*API running at `http://localhost:8000` | Swagger interactive docs at `http://localhost:8000/docs`*
+*API docs at: `http://localhost:8000/docs`*
 
-**Command 2 (Streamlit Interactive Dashboard):**
+### 3. Run Automated Benchmark Test Suite
 ```bash
-python -m streamlit run dashboard.py
-```
-*Dashboard running at `http://localhost:8501`*
-
----
-
-## 🧪 Benchmark Demonstration Presets
-
-Click any of the 4 benchmark presets in the dashboard sidebar to evaluate context-awareness instantly:
-
-- **Preset 1 (Public Contact ➜ PASS)**  
-  `"For any inquiries or enterprise sales questions, please reach out to Alice at alice@acme.com."`  
-  *Result*: Both `Alice` and `alice@acme.com` are passed untouched because public sales cues are present.
-- **Preset 2 (Confidential Health ➜ PSEUDONYMIZE)**  
-  `"Please note that Alice at alice@acme.com was diagnosed with leukemia and will begin chemotherapy treatment tomorrow."`  
-  *Result*: Replaced with `[PERSON_REF_101]` and `[EMAIL_REF_101]`. Reversible token mapped in secure surrogate store.
-- **Preset 3 (Internal Financial ➜ REDACT)**  
-  `"Finance team: Rahul's Q4 appraisal bonus of $18,500 has been transferred to his account ending in 4102."`  
-  *Result*: Replaced with `[REDACTED_FINANCIAL]`.
-- **Preset 4 (Generic PII ➜ MASK)**  
-  `"Call me on 9845012345 when you arrive at the gate."`  
-  *Result*: Masked to `98450****5`.
-
----
-
-## 📡 API Specification
-
-### 1. `POST /api/scan`
-Evaluates text and returns sanitized output and comprehensive decision telemetry.
-
-**Request:**
-```json
-{
-  "text": "For any inquiries or enterprise sales questions, please reach out to Alice at alice@acme.com."
-}
-```
-
-**Response:**
-```json
-{
-  "original_text": "For any inquiries or enterprise sales questions, please reach out to Alice at alice@acme.com.",
-  "sanitized_text": "For any inquiries or enterprise sales questions, please reach out to Alice at alice@acme.com.",
-  "telemetry": [
-    {
-      "entity_type": "PERSON",
-      "value": "Alice",
-      "start": 69,
-      "end": 74,
-      "risk_tier": "LOW",
-      "action": "PASS",
-      "category": "PUBLIC_BUSINESS",
-      "replacement": "Alice",
-      "reason": "Public business directory or support channel cues detected (sales, inquiries). Safe to pass untouched."
-    },
-    {
-      "entity_type": "EMAIL_ADDRESS",
-      "value": "alice@acme.com",
-      "start": 78,
-      "end": 92,
-      "risk_tier": "LOW",
-      "action": "PASS",
-      "category": "PUBLIC_BUSINESS",
-      "replacement": "alice@acme.com",
-      "reason": "Public business directory or support channel cues detected (sales, inquiries). Safe to pass untouched."
-    }
-  ],
-  "stats": {
-    "total": 2,
-    "pass": 2,
-    "mask": 0,
-    "pseudonymize": 0,
-    "redact": 0
-  }
-}
-```
-
-### 2. `POST /api/simulate-llm`
-Forwards sanitized text downstream to prove reasoning works without exposing raw sensitive data.
-
-**Request:**
-```json
-{
-  "sanitized_text": "Please note that [PERSON_REF_101] at [EMAIL_REF_101] was diagnosed with leukemia.",
-  "query": "Summarize the request and action items safely."
-}
-```
-
-**Response:**
-```json
-{
-  "query": "Summarize the request and action items safely.",
-  "sanitized_input": "Please note that [PERSON_REF_101] at [EMAIL_REF_101] was diagnosed with leukemia.",
-  "llm_response": "Safe LLM Processing Complete.\n\nContext Comprehension: The downstream AI received the sanitized prompt without raw PII exposure.\nKey Entities Handled: 1 context boundaries applied.\nAnalysis: Identified clinical/health record associated with anonymous surrogate reference. Protected from HIPAA exposure.",
-  "privacy_guarantee": "Zero raw sensitive PII transmitted to external model provider."
-}
-```
-
----
-
-## 📂 Project Structure
-```
-devhack/
-├── requirements.txt      # Dependency manifest (FastAPI, Presidio, Streamlit)
-├── privacy_engine.py     # Core NLP sliding-window context evaluator & policy engine
-├── server.py             # Production FastAPI REST backend
-├── dashboard.py          # Interactive Streamlit UI with presets & telemetry
-├── test_engine.py        # Automated test suite for all 4 benchmark presets
-├── index.html            # Standalone Vanilla Web Application (alternative frontend)
-├── app.js                # Frontend controller & UI interactions
-├── engine.js             # Client-side context engine
-└── style.css             # Dark-mode glassmorphic styling
+py -u test_engine.py
 ```
